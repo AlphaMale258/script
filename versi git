@@ -1,0 +1,25 @@
+import pandas as pd
+from datetime import datetime
+
+# Baca data CSV
+bbca = pd.read_csv("C:/Users/AldiBoi/Desktop/ITS/Materi/Semester 8/Tugas Akhir (TA)/Semhas/Pra-Semhas/Penelitian/Data Mentah Harga Saham/Bank Central Asia Stock Price History.csv")
+bmri = pd.read_csv("C:/Users/AldiBoi/Desktop/ITS/Materi/Semester 8/Tugas Akhir (TA)/Semhas/Pra-Semhas/Penelitian/Data Mentah Harga Saham/Bank Mandiri Persero Stock Price History.csv")
+
+# Bersihkan dan format kolom harga BBCA
+bbca["Price"] = bbca["Price"].str.replace(",", "").astype(float)
+bbca["Date"] = pd.to_datetime(bbca["Date"], format="%m/%d/%Y")
+close_bbca = bbca[["Date", "Price"]].rename(columns={"Price": "BBCA"})
+
+# Bersihkan dan format kolom harga BMRI
+bmri["Price"] = bmri["Price"].str.replace(",", "").astype(float)
+bmri["Date"] = pd.to_datetime(bmri["Date"], format="%m/%d/%Y")
+close_bmri = bmri[["Date", "Price"]].rename(columns={"Price": "BMRI"})
+
+# Gabungkan berdasarkan tanggal
+gabung = pd.merge(close_bbca, close_bmri, on="Date")
+
+# Urutkan data berdasarkan tanggal dari paling awal ke paling akhir
+gabung = gabung.sort_values("Date").reset_index(drop=True)
+
+# Penyesuaian harga sebelum stock split BMRI 8 Maret 2021
+gabung.loc[gabung["Date"] < pd.to_datetime("2021-03-09"), "BMRI"] /= 2
